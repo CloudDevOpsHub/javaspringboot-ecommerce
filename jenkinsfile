@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    
+    triggers {
+
+pollSCM('* * * * *')
+
+}
+
+    stages {
+
+        stage('Clone Code') {
+            steps {
+            git branch: 'main', url: 'https://github.com/sandip95biswas-git/javaspringboot-ecommerce.git'
+            }
+        }
+
+        stage('cleaning old package') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn install'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                 echo "Starting application on port 3000"
+                nohup java -jar Shopping_Cart-0.0.1-SNAPSHOT.jar --httpPort=3000 > app.log 2>&1 &
+                '''
+            }
+        }
+    }
+}
